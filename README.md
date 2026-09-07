@@ -3,9 +3,9 @@
 
 ## To do
  - [후쿠오카시 지하철](http://unkou.subway.city.fukuoka.lg.jp/unkou/kuhako.html)
-     - [ ] 공항선
-     - [ ] 하코자키선
-     - [ ] 나나쿠마선
+     - [x] 공항선
+     - [x] 하코자키선
+     - [x] 나나쿠마선
  - [서일본 철도](https://busnavi-railway.nnr.co.jp/tenjin_omuta/)
      - [ ] 텐진오무타선
      - [ ] 다자이후선
