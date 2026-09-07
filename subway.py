@@ -1,7 +1,7 @@
 import requests, io
 import numpy as np
 from PIL import Image
-import subway_positions
+import subway_positions, station_list
 
 def find_train(img_np, x, y):
     # 상행 열차 찾기
@@ -19,6 +19,28 @@ def find_train(img_np, x, y):
     return None
     
 def get_data_subway(line):
+    train_list = get_train_list(line)
+    result = []
+    for i, v in enumerate(getattr(station_list, line)):
+        result.append({
+            'stn': {
+                'ko': v['ko'],
+                'ja': v['ja']
+            },
+            'up': [],
+            'down': []
+        })
+        for train in train_list:
+            if train['stn'] != v['ko'] : continue
+            result[i][train['dir']].append({
+                'status': train['status'],
+                'type': train['type']
+            })
+    return result
+
+
+
+def get_train_list(line):
     image = 'PC_Kuhako.png'
     if line == 'N': image = 'PC_Nanakuma.png'
     url = 'https://unkou.subway.city.fukuoka.lg.jp/unkou/' + image
@@ -26,7 +48,7 @@ def get_data_subway(line):
     res = requests.get(url)
     res.raise_for_status()
     img_np = np.array(Image.open(io.BytesIO(res.content)).convert("RGB"))
-    # 이미지를 잘 읽어오기는 하는지 디버기하는 용도
+    # 이미지를 잘 읽어오기는 하는지 디버깅하는 용도
     # with open('debug_output.png', 'wb') as f:
     #     f.write(res.content)
 
@@ -41,9 +63,6 @@ def get_data_subway(line):
     results = []
     for p in pos['data']:
         data = find_train(img_np, p['x'], pos['y'])
-        print(p)
-        print(img_np[pos['y']['up'], p['x']])
-        print(img_np[pos['y']['down'], p['x']])
         if data != None:
             stn = p['p']
             status = '도착'
