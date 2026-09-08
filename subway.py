@@ -5,16 +5,16 @@ import subway_positions, station_list
 
 def find_train(img_np, x, y):
     # 상행 열차 찾기
-    if bool(np.all(img_np[y['up'], x] == [74, 74, 74])): # 보통 
-        return {'dir': 'up', 'type': 0}
-    if bool(np.all(img_np[y['up'], x] == [255, 208, 0])): # 쾌속이지만, 지하철 구간에서는 보통
-        return {'dir': 'up', 'type': 1}
+    if bool(np.all(img_np[y['up'], x] == [74, 74, 74])):
+        return {'dir': 'up', 'type': '보통'}
+    if bool(np.all(img_np[y['up'], x] == [255, 208, 0])):
+        return {'dir': 'up', 'type': '쾌속'}  # 지하철 구간에서는 모든 역에 정차
 
     # 하행 열차 찾기
-    if bool(np.all(img_np[y['down'], x] == [74, 74, 74])): # 보통 
-        return {'dir': 'down', 'type': 0}
-    if bool(np.all(img_np[y['down'], x] == [255, 208, 0])): # 쾌속이지만, 지하철 구간에서는 보통
-        return {'dir': 'down', 'type': 1}
+    if bool(np.all(img_np[y['down'], x] == [74, 74, 74])):
+        return {'dir': 'down', 'type': '보통'}
+    if bool(np.all(img_np[y['down'], x] == [255, 208, 0])):
+        return {'dir': 'down', 'type': '쾌속'}  # 지하철 구간에서는 모든 역에 정차
 
     return None
     
@@ -23,10 +23,7 @@ def get_data_subway(line):
     result = []
     for i, v in enumerate(getattr(station_list, line)):
         result.append({
-            'stn': {
-                'ko': v['ko'],
-                'ja': v['ja']
-            },
+            'stn': v['ko'] + ' (' + v['ja'] + ')',
             'up': [],
             'down': []
         })
