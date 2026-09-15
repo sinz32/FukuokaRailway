@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>실시간 전철 위치 정보</title>
+  <title>실시간 열차 위치 (후쿠오카)</title>
   <style>
     /* ==========================================================
        1. CSS RESET & GLOBAL STYLES
@@ -13,6 +13,11 @@
       margin: 0;
       padding: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    }
+
+    /* 화면 전체를 Flexbox 컨테이너로 설정하여 하단 푸터 고정 */
+    html, body {
+      height: 100%;
     }
 
     body {
@@ -38,10 +43,11 @@
       justify-content: space-between;
       padding: 0 16px;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+      flex-shrink: 0;
     }
 
     .app-bar .title {
-      font-size: 1.25rem;
+      font-size: 1.15rem;
       font-weight: 500;
       letter-spacing: 0.5px;
       cursor: pointer;
@@ -164,14 +170,14 @@
     }
 
     /* ==========================================================
-       4. MAIN CONTENT AREA
+       4. MAIN CONTENT AREA (Flex-grow 1로 하단 푸터를 밀어냄)
        ========================================================== */
     .main-container {
       max-width: 800px;
       width: 100%;
       margin: 0 auto;
       padding: 20px 16px;
-      flex: 1;
+      flex: 1 0 auto; /* 본문 내용 길이에 따라 늘어나며 푸터를 하단으로 밀음 */
     }
 
     .home-grid {
@@ -205,11 +211,6 @@
       border-color: #1976d2;
     }
 
-    .btn-card.info-btn {
-      color: #666666;
-      background-color: #fafafa;
-    }
-
     .line-header-bar {
       display: flex;
       justify-content: space-between;
@@ -227,8 +228,20 @@
       color: #1976d2;
     }
 
+    .inactive-banner {
+      background-color: #fff3cd;
+      color: #856404;
+      border: 1px solid #ffeeba;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      font-size: 0.9rem;
+      text-align: center;
+      font-weight: 500;
+    }
+
     /* ==========================================================
-       5. TRAIN LOCATION TABLE
+       5. TRAIN LOCATION TABLE & BADGES
        ========================================================== */
     .table-container {
       background: #ffffff;
@@ -260,15 +273,25 @@
       border-bottom: 1px solid #edf2f7;
       vertical-align: middle;
       font-size: 0.9rem;
-      color: #333333; /* 텍스트 보장 */
+      color: #333333;
     }
 
     .stn-name {
       font-weight: bold;
-      color: #111111 !important; /* 명확한 글자색 지정 */
+      color: #111111 !important;
       word-break: keep-all;
+      line-height: 1.35;
     }
 
+    /* 로딩 및 안내 상태 텍스트 셀 스타일 */
+    .loading-cell {
+      padding: 40px 16px !important;
+      font-size: 1rem !important;
+      font-weight: 600;
+      color: #666666;
+    }
+
+    /* 열차 기본 배지 스타일 */
     .train-badge {
       display: inline-flex;
       align-items: center;
@@ -284,24 +307,89 @@
       border: 1px solid #bbdefb;
     }
 
-    .train-badge.급행 {
-      background-color: #ffebee;
-      color: #c62828;
-      border: 1px solid #ffcdd2;
-    }
-
     .train-badge.보통 {
       background-color: #e8f5e9;
       color: #2e7d32;
       border: 1px solid #c8e6c9;
     }
 
+    .train-badge.쾌속 {
+      background-color: #fff3e0;
+      color: #e65100;
+      border: 1px solid #ffe0b2;
+    }
+
+    .train-badge.급행 {
+      background-color: #ffebee;
+      color: #c62828;
+      border: 1px solid #ffcdd2;
+    }
+
+    .train-badge.특급 {
+      background-color: #fbe9e7;
+      color: #d84315;
+      border: 1px solid #ffccbc;
+    }
+
+    .train-badge.N라이너 {
+      background-color: #f3e5f5;
+      color: #6a1b9a;
+      border: 1px solid #e1bee7;
+    }
+
     .sts-tag {
       font-size: 0.72rem;
       padding: 2px 4px;
       border-radius: 3px;
-      background: rgba(0,0,0,0.08);
+      background: rgba(0, 0, 0, 0.08);
       color: #222222;
+    }
+
+    /* ==========================================================
+       6. WEBSITE INFO VIEW
+       ========================================================== */
+    .info-card {
+      background: white;
+      border-radius: 8px;
+      padding: 28px 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      text-align: center;
+    }
+
+    .info-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: #444444;
+      margin-bottom: 24px;
+      word-break: keep-all;
+    }
+
+    .btn-home {
+      background-color: #1976d2;
+      color: #ffffff;
+      border: none;
+      padding: 12px 24px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: background-color 0.2s;
+    }
+
+    .btn-home:hover {
+      background-color: #1565c0;
+    }
+
+    /* ==========================================================
+       7. GLOBAL FOOTER (항상 최하단 고정)
+       ========================================================== */
+    .global-footer {
+      padding: 16px;
+      text-align: center;
+      font-size: 0.82rem;
+      color: #888888;
+      flex-shrink: 0;
+      margin-top: auto;
     }
   </style>
 </head>
@@ -309,7 +397,7 @@
 
   <!-- 1. AppBar Header -->
   <header class="app-bar">
-    <div class="title" id="app-title">실시간 전철 위치</div>
+    <div class="title" id="app-title">실시간 열차 위치 (후쿠오카)</div>
     <button class="icon-btn" id="btn-open-drawer" aria-label="메뉴 열기">
       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
         <line x1="3" y1="12" x2="21" y2="12"></line>
@@ -349,7 +437,7 @@
         <button class="btn-card" data-line="N">지하철 나나쿠마선</button>
         <button class="btn-card" data-line="T">니시테츠 텐진오무타선</button>
         <button class="btn-card" data-line="D">니시테츠 다자이후선</button>
-        <button class="btn-card info-btn" id="btn-site-info">웹사이트 정보</button>
+        <button class="btn-card" id="btn-site-info">웹사이트 정보</button>
       </div>
     </section>
 
@@ -357,6 +445,11 @@
     <section id="line-view" style="display: none;">
       <div class="line-header-bar">
         <span class="line-title" id="selected-line-title"></span>
+      </div>
+
+      <!-- 3분 미입력 시 정지 안내 메시지 -->
+      <div id="inactive-banner" class="inactive-banner" style="display: none;">
+        3분 동안 화면 터치가 없어 실시간 정보 갱신이 멈추었습니다. 화면을 터치하시면 다시 갱신됩니다.
       </div>
 
       <div class="table-container" id="table-container">
@@ -375,7 +468,22 @@
       </div>
     </section>
 
+    <!-- 3-3. Website Info View -->
+    <section id="site-info-view" style="display: none;">
+      <div class="info-card">
+        <p class="info-text">
+          일본 후쿠오카 지역의 일부 철도 노선들의 실시간 열차 위치를 확인할 수 있습니다. 이 사이트는 개인이 운영하는 곳으로, 철도 운영 회사 및 기관과는 전혀 관련이 없습니다.
+        </p>
+        <button class="btn-home" id="btn-back-home">메인화면으로 돌아가기</button>
+      </div>
+    </section>
+
   </main>
+
+  <!-- 4. Global Footer (항상 최하단에 배치) -->
+  <footer class="global-footer">
+    © 2026 SinZ, All rights reserved.
+  </footer>
 
   <!-- JavaScript -->
   <script>
@@ -392,6 +500,15 @@
       'D': '니시테츠 다자이후선'
     };
 
+    const AUTO_REFRESH_INTERVAL = 30 * 1000; // 30초
+    const INACTIVE_LIMIT = 3 * 60 * 1000;    // 3분
+
+    // STATE VARIABLES
+    let currentLineCode = null;
+    let refreshTimer = null;
+    let inactivityTimer = null;
+    let isInactive = false;
+
     // ==========================================================
     // 2. DOM ELEMENTS
     // ==========================================================
@@ -403,8 +520,15 @@
 
     const homeView = document.getElementById('home-view');
     const lineView = document.getElementById('line-view');
+    const siteInfoView = document.getElementById('site-info-view');
+
     const selectedLineTitle = document.getElementById('selected-line-title');
     const stationTableBody = document.getElementById('station-table-body');
+    const inactiveBanner = document.getElementById('inactive-banner');
+
+    const btnSiteInfo = document.getElementById('btn-site-info');
+    const btnBackHome = document.getElementById('btn-back-home');
+    const appTitle = document.getElementById('app-title');
 
     // ==========================================================
     // 3. EVENT LISTENERS
@@ -415,20 +539,28 @@
     btnCloseDrawerTop.addEventListener('click', closeDrawer);
     drawerOverlay.addEventListener('click', closeDrawer);
 
+    appTitle.addEventListener('click', showHomeView);
+    btnBackHome.addEventListener('click', showHomeView);
+
     document.querySelectorAll('[data-line]').forEach(button => {
       button.addEventListener('click', (e) => {
         const lineCode = e.currentTarget.getAttribute('data-line');
-        loadLineData(lineCode);
+        selectLineByUser(lineCode);
         closeDrawer();
       });
     });
 
-    document.getElementById('btn-site-info').addEventListener('click', () => {
-      // 기능 없음
+    btnSiteInfo.addEventListener('click', () => {
+      showSiteInfoView();
+      closeDrawer();
+    });
+
+    ['touchstart', 'click', 'mousemove', 'keydown', 'scroll'].forEach(evtType => {
+      window.addEventListener(evtType, handleUserActivity, { passive: true });
     });
 
     // ==========================================================
-    // 4. FUNCTIONS
+    // 4. FUNCTIONS & VIEW SWITCHING
     // ==========================================================
 
     function openDrawer() {
@@ -441,17 +573,124 @@
       drawerOverlay.classList.remove('active');
     }
 
-    // [핵심 수정 1] 클래스가 아닌 style.display 직접 조작하여 화면 렌더링 강제 보장
+    function showHomeView() {
+      stopAutoRefresh();
+      clearTimeout(inactivityTimer);
+
+      homeView.style.display = 'block';
+      lineView.style.display = 'none';
+      siteInfoView.style.display = 'none';
+
+      currentLineCode = null;
+      isInactive = false;
+      inactiveBanner.style.display = 'none';
+    }
+
     function showLineView(lineCode) {
       homeView.style.display = 'none';
       lineView.style.display = 'block';
+      siteInfoView.style.display = 'none';
+
       selectedLineTitle.textContent = LINE_NAMES[lineCode] || '';
     }
 
-    async function loadLineData(lineCode) {
-      showLineView(lineCode);
-      stationTableBody.innerHTML = ''; 
+    function showSiteInfoView() {
+      stopAutoRefresh();
+      clearTimeout(inactivityTimer);
 
+      homeView.style.display = 'none';
+      lineView.style.display = 'none';
+      siteInfoView.style.display = 'block';
+
+      currentLineCode = null;
+      isInactive = false;
+      inactiveBanner.style.display = 'none';
+    }
+
+    function renderLoadingState() {
+      stationTableBody.innerHTML = `
+        <tr>
+          <td colspan="3" class="loading-cell">
+            ⏳ 정보 불러오는 중...
+          </td>
+        </tr>
+      `;
+    }
+
+    // ==========================================================
+    // 5. STATION NAME FORMATTER
+    // ==========================================================
+    function formatStationName(rawName) {
+      if (!rawName) return '';
+
+      if (rawName.includes(' (')) {
+        return rawName.replace(/\s\(/g, '<br>(');
+      }
+
+      return rawName.replace(/\s+/, '<br>');
+    }
+
+    // ==========================================================
+    // 6. DATA FETCHING & TIMERS
+    // ==========================================================
+
+    function selectLineByUser(lineCode) {
+      currentLineCode = lineCode;
+      showLineView(lineCode);
+      
+      isInactive = false;
+      inactiveBanner.style.display = 'none';
+      
+      renderLoadingState();
+
+      loadLineData(lineCode);
+      resetInactivityTimer();
+      startAutoRefresh();
+    }
+
+    function startAutoRefresh() {
+      stopAutoRefresh();
+      refreshTimer = setInterval(() => {
+        if (currentLineCode && !isInactive) {
+          loadLineData(currentLineCode);
+        }
+      }, AUTO_REFRESH_INTERVAL);
+    }
+
+    function stopAutoRefresh() {
+      if (refreshTimer) {
+        clearInterval(refreshTimer);
+        refreshTimer = null;
+      }
+    }
+
+    function handleUserActivity() {
+      if (!currentLineCode) return;
+
+      if (isInactive) {
+        isInactive = false;
+        inactiveBanner.style.display = 'none';
+        
+        renderLoadingState();
+        loadLineData(currentLineCode);
+        startAutoRefresh();
+      }
+
+      resetInactivityTimer();
+    }
+
+    function resetInactivityTimer() {
+      clearTimeout(inactivityTimer);
+      if (!currentLineCode) return;
+
+      inactivityTimer = setTimeout(() => {
+        isInactive = true;
+        stopAutoRefresh();
+        inactiveBanner.style.display = 'block';
+      }, INACTIVE_LIMIT);
+    }
+
+    async function loadLineData(lineCode) {
       const targetUrl = `${API_BASE_URL}?line=${lineCode}`;
 
       try {
@@ -478,14 +717,30 @@
       }
     }
 
+    // ==========================================================
+    // 7. TRAIN BADGE CREATOR & RENDER
+    // ==========================================================
     function createTrainBadges(trainList) {
       if (!trainList || !Array.isArray(trainList) || trainList.length === 0) return '';
 
       return trainList.map(train => {
         if (!train) return '';
+        
         const typeStr = train.type || train.trainType || train.expressType || '';
         const stsStr = train.sts || train.status || train.trainStatus || '';
-        const typeClass = typeStr.includes('급행') ? '급행' : (typeStr.includes('보통') ? '보통' : '');
+
+        let typeClass = '';
+        if (typeStr.includes('N라이너') || typeStr.includes('라이너')) {
+          typeClass = 'N라이너';
+        } else if (typeStr.includes('특급')) {
+          typeClass = '특급';
+        } else if (typeStr.includes('급행')) {
+          typeClass = '급행';
+        } else if (typeStr.includes('쾌속')) {
+          typeClass = '쾌속';
+        } else if (typeStr.includes('보통')) {
+          typeClass = '보통';
+        }
 
         return `
           <div class="train-badge ${typeClass}">
@@ -496,11 +751,15 @@
       }).join('');
     }
 
-    // [핵심 수정 2] innerHTML 세팅 과정에서 DOM 렌더링 문제 방지
     function renderTrainData(stations) {
       stationTableBody.innerHTML = '';
 
       if (!stations || !Array.isArray(stations) || stations.length === 0) {
+        stationTableBody.innerHTML = `
+          <tr>
+            <td colspan="3" class="loading-cell">운행 정보가 없습니다.</td>
+          </tr>
+        `;
         return;
       }
 
@@ -509,7 +768,9 @@
 
         const tr = document.createElement('tr');
 
-        const stnName = item.stn || item.station || item.stationName || '';
+        const rawStnName = item.stn || item.station || item.stationName || '';
+        const formattedStnName = formatStationName(rawStnName);
+
         const upList = item.up || item.upBound || item.upbound || [];
         const downList = item.down || item.downBound || item.downbound || [];
 
@@ -518,7 +779,7 @@
 
         tr.innerHTML = `
           <td class="col-up">${upHtml}</td>
-          <td class="col-stn stn-name">${stnName}</td>
+          <td class="col-stn stn-name">${formattedStnName}</td>
           <td class="col-down">${downHtml}</td>
         `;
 
